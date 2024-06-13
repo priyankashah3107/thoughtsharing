@@ -14,7 +14,8 @@ app.get("/", (req, res) => {
 
 
 // middleware 
-
+app.use(express.json()) // it is a middleware or regular function which runs btw req and res.
+// parse the req.body  
 app.use("/api/auth", authRoutes)
 
 // console.log(process.env.MONGODB_URI)
