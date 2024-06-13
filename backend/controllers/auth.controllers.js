@@ -65,7 +65,34 @@ export const signup = async(req,res) => {
 }
 
 export const login = async(req, res) => {
-   res.send("Login kare")
+    try {
+        const {username, password} = req.body;
+   const user = await User.findOne({username})
+   const isCorrectPassword = await bcrypt.compare(password, user?.password || "");
+
+   if(!username || !isCorrectPassword) {
+      return res.status(400).json({error: "Invalid Username or Password"})
+   } 
+     
+   generateTokenAndSetCookie(user._id, res);
+
+   res.status(200).json({
+    _id: user._id,
+     fullname: user.fullname,
+     username: user.username,
+     email: user.email,
+     followers: user.followers,
+     following: user.following,
+     profileImg: user.profileImg,
+     coverImg: user.coverImg
+
+   })
+    
+    } catch (error) {
+        console.log("Error in Login Controlllers",error.message)
+       res.status(400).json({msg: "Internal Server Error"}) 
+    }
+   
 }
 
 export const logout = async(req, res) => {
