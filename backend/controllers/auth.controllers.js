@@ -112,9 +112,13 @@ export const logout = async(req, res) => {
  export const authCheck = async (req, res) => {
      try {
        const user = await User.findById(req.user._id).select("-password");
-       res.status(200).json({user})
+       res.status(200).json(user)
      } catch (error) {
       console.log("Error in Auth Controller", error.message)
         res.status(500).json({error: "Internal Server Error"})
      }
  }
+
+
+
+ 

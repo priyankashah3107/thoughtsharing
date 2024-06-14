@@ -3,7 +3,7 @@ import authRoutes from "../backend/routes/auth.routes.js"
 import dotenv from "dotenv"
 import connectMongoDb from "./db/connectoMongoDb.js"
 import cookieParser from "cookie-parser"
-
+import usersRoutes from "../backend/routes/users.routes.js"
 dotenv.config()
 const app = express()
 
@@ -16,7 +16,7 @@ app.use(cookieParser())
 app.use(express.urlencoded({extended: true}));  // to parse from data(urlencode)
 
 app.use("/api/auth", authRoutes)
-
+app.use("/api/users", usersRoutes)
 // console.log(process.env.MONGODB_URI)
 
 app.listen(port, ()=> {
