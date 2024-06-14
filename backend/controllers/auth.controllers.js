@@ -96,6 +96,25 @@ export const login = async(req, res) => {
 }
 
 export const logout = async(req, res) => {
-    res.json({data: "Logout Kare"})
+    try {
+        res.cookie("jwt", "", {maxAge:0})
+        res.status(200).json({msg: "Logged out Successfully!!"})
+    } catch (error) {
+        console.log("Error in Logout Controller", error.message)
+        res.status(500).json({error: "Internal Server Error"})
+    }
 }
 
+
+
+ // get the authenticated User 
+
+ export const authCheck = async (req, res) => {
+     try {
+       const user = await User.findById(req.user._id).select("-password");
+       res.status(200).json({user})
+     } catch (error) {
+      console.log("Error in Auth Controller", error.message)
+        res.status(500).json({error: "Internal Server Error"})
+     }
+ }
