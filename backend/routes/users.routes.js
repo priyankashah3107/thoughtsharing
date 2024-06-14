@@ -6,7 +6,7 @@ const router = Router();
 
 router.get("/profile/:username", protectRoute, getUserProfile);
 // router.get("/suggest", protectRoute, suggestUser);
-// router.post("/follow/:id", protectRoute, followUnFollowUser);
+router.post("/follow/:id", protectRoute, followUnFollowUser);
 // router.post("/update", protectRoute, updateUser)
 
 
