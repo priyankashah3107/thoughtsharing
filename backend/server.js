@@ -5,6 +5,7 @@ import connectMongoDb from "./db/connectoMongoDb.js"
 import cookieParser from "cookie-parser"
 import usersRoutes from "../backend/routes/users.routes.js"
 import {v2 as cloudinary} from 'cloudinary';
+import bodyParser from 'body-parser';
 
 dotenv.config()
 cloudinary.config({
@@ -19,6 +20,8 @@ const port = process.env.PORT || 8000
 // middleware 
 app.use(express.json()) // it is a middleware or regular function which runs btw req and res.
 // parse the req.body  
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
 app.use(express.urlencoded({extended: true}));  // to parse from data(urlencode)
 
