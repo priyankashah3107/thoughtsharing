@@ -1,5 +1,7 @@
 import Notification from "../models/notifications.model.js";
 import User from "../models/user.model.js";
+import bcrypt from "bcryptjs"
+import {v2 as cloudinary} from 'cloudinary';
 
 export const getUserProfile = async (req, res) => {
   const {username} = req.params;
@@ -89,11 +91,79 @@ export const followUnFollowUser = async (req, res) => {
 }
 
 
-
+// what things we have to keep in mind while updating the value
+// a. take all the things which u want to update from the req.body
+// b. find the particualr user using from the userId in the db
+// c. if we do not have user in the db return the erro 
+// d. if we do not have currentPassword and newPassword in the db then return error 
+// $$$$ e . this is the most imp step 
+/// if we have currentPassword and newPassword then check is the old password ismatch from the db password.
+// f. check length of the newPassword at least greater than 6
+//  g. bcrypt or hash the password 
 export const updateUser = async (req, res) => {
+  let {fullname, username, email, link, bio, currentPassword, newPassword} = req.body;
+   let {coverImg, profileImg} = req.body;
+     const userId = req.user._id;
   try {
+    let user = await User.findById(userId)
+    if(!user) {
+      return res.status(404).json({error: "User Not Found"});
+    }
+    if((!currentPassword && newPassword) || (!newPassword && currentPassword)) {
+      return res.status(400).json({error: "Please provide both current and newPassword"});
+    }
+
+   if(currentPassword && newPassword) {
+    const isMatch = await bcrypt.compare(currentPassword, user.password)
+    if(!isMatch) {
+      return res.status(404).json({error: "Incorrect password"})
+    } 
+    if(newPassword.length < 6) {
+      return res.status(400).json({error: "Password should be 6 character long"})
+    }
+    // hasing the password
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    if(coverImg) {
+      // if coverImg is already exist 
+      if(user.coverImg) {
+        await cloudinary.uploader.destroy(user.coverImg.split("/").pop().split(".")[0]);
+      }
+       const uploadResponse = await cloudinary.uploader.upload(coverImg)
+       coverImg =  uploadResponse.secure_url;
+    }
+
+    if(profileImg) {
+      // https://unsplash.com/photos/upload/982301835/jdhfkahkdaewo.png
+      // profile img is already exist 
+      if(user.profileImg) {
+        await cloudinary.uploader.destroy(user.profileImg.split("/").pop().split(".")[0]);
+      }
+       const uploadResponse = await cloudinary.uploader.upload(profileImg)
+       profileImg = uploadResponse.secure_url
+    }
+     
+    user.fullname = fullname || user.fullname;
+    user.email = email || user.email;
+    user.username = username || user.username;
+    user.link = link || user.link;
+    user.bio = bio || user.bio;
+    user.coverImg = coverImg || user.coverImg;
+    user.profileImg = profileImg || user.profileImg;
     
+      user = await user.save();
+
+      user.password = null;  // ofcouser this password is save in the db
+
+      res.status(200).json({user})
+
+
+   }
+
+
   } catch (error) {
-    
+    console.error("Error in Update Controller", error.message)
+    res.status(500).json({error: "Internal Server Error"})
   }
 }
