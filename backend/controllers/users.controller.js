@@ -1,3 +1,4 @@
+import Notification from "../models/notifications.model.js";
 import User from "../models/user.model.js";
 
 export const getUserProfile = async (req, res) => {
@@ -15,11 +16,30 @@ export const getUserProfile = async (req, res) => {
 }
 
 
-export const suggestUser = async (req, res) => {
+export const suggestUserForMe = async (req, res) => {
   try {
+    const userId = req.user._id;
+    const usersFollowedByMe = await User.findById(userId).select("following")
     
+    const users = await User.aggregate([
+      {
+        $match: {_id: {$ne: userId}},
+      },
+      { $sample: {size: 10}}
+    ]);
+    // this will gives 10 sample following
+    // filtered the User which i alreay follow
+    const filteredUser = users.filter((user) => !usersFollowedByMe.following.includes(user._id))
+    // take only 5 user as suggestion 
+    const suggestUsers = filteredUser.slice(0,4);
+    
+    suggestUsers.forEach((user) => (user.password = null))
+
+    res.status(200).json({suggestUsers})
+
   } catch (error) {
-    
+    console.error("Error in SuggestedUser Controller", error.message)
+    res.status(500).json({error: "Internal Server Error"})
   }
 }
 
@@ -45,12 +65,21 @@ export const followUnFollowUser = async (req, res) => {
       // Unfollow the user 
       await User.findByIdAndUpdate(id, {$pull: {followers: req.user._id}})
       await User.findByIdAndUpdate(req.user._id, {$pull: {following: id}})
+      // return the id of the user as response
       res.status(200).json({msg: "Unfollowed Uncessfully!"})
     } 
     else {
       // follow the user
       await User.findByIdAndUpdate(id, {$push: {followers: req.user._id}})
       await User.findByIdAndUpdate(req.user._id, {$push: {following: id}})
+      // Send Notification to the user
+      const newNotification = new Notification({
+        type: "follow",
+        from: req.user._id,
+        to: userModify._id
+      })
+      await newNotification.save();
+      // return the id of the user as response
       res.status(200).json({msg: "User Followed Successfully"})
     }
   } catch (error) {
@@ -58,6 +87,7 @@ export const followUnFollowUser = async (req, res) => {
     res.status(500).json({error: "Internal Server Error"})
   }
 }
+
 
 
 export const updateUser = async (req, res) => {
