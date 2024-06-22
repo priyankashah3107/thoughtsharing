@@ -276,7 +276,8 @@ export const updateUser = async (req, res) => {
       user.username = username || user.username;
       user.bio = bio || user.bio;
       user.link = link || user.link;
-
+      user.coverImg = coverImg || user.coverImg;
+      user.profileImg = profileImg || user.profileImg;
       user = await user.save();
 
       user.password = null;
