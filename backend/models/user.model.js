@@ -53,7 +53,15 @@ const userSchema = new Schema({
    bio: {
     type: String,
     default: ""
-   }
+   },
+
+   likedPosts: [
+      {
+         type: Schema.Types.ObjectId,
+         ref: "Post",
+         default: []
+      },
+   ],
 
 }, {timestamps: true})
 
