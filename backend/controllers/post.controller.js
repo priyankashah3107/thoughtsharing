@@ -228,7 +228,7 @@ export const getUsers = async (req, res) => {
 
        const posts = await Post.find({ user: user._id})
        .sort({createdAt: -1})
-       .populate({
+       .populate({ 
         path: "user",
         select: "-password"
        })

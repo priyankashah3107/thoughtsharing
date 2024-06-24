@@ -7,6 +7,7 @@ import usersRoutes from "../backend/routes/users.routes.js"
 import {v2 as cloudinary} from 'cloudinary';
 import bodyParser from 'body-parser';
 import postRoutes from "../backend/routes/post.routes.js"
+import notificationRoutes from "../backend/routes/notification.route.js"
 dotenv.config()
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -28,6 +29,7 @@ app.use(express.urlencoded({extended: true}));  // to parse from data(urlencode)
 app.use("/api/auth", authRoutes)
 app.use("/api/users", usersRoutes)
 app.use("/api/posts", postRoutes)
+app.use("/api/notifications", notificationRoutes)
 // console.log(process.env.MONGODB_URI)
 
 app.listen(port, ()=> {
