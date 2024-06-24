@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protectRoute } from "../middleware/protectRoute.js";
-import { commentOnPost, createPost, deletePost, getAllPost, getLikedPosts, likeOrUnLikePost } from "../controllers/post.controller.js";
+import { commentOnPost, createPost, deletePost, getAllFollowing, getAllPost, getLikedPosts, likeOrUnLikePost } from "../controllers/post.controller.js";
 
 const router  = Router()
 
@@ -8,6 +8,7 @@ const router  = Router()
 // a) create a post b) delete Post c) Like Post d) comment post e) bookmark the post f) share the post(whatapp or any socialmedia)
 
 router.get("/all", protectRoute, getAllPost)
+router.get("/following", protectRoute, getAllFollowing)
 router.get("/alllikes/:id", protectRoute, getLikedPosts)
 router.post("/create", protectRoute, createPost);
 router.post("/like/:id", protectRoute, likeOrUnLikePost);

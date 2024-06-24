@@ -2,6 +2,7 @@ import User from "../models/user.model.js"
 import Post from "../models/post.model.js"
 import {v2 as cloudinary} from 'cloudinary';
 import Notification from "../models/notifications.model.js";
+
 export const createPost = async(req, res) => {
  try {
   const {text} = req.body;
@@ -189,3 +190,63 @@ export const likeOrUnLikePost = async(req, res) => {
      res.status(500).json({error: "Internal Server Error"})
    }
  }
+
+
+
+ export const getAllFollowing = async (req, res) => {
+   try {
+      const userId = req.user._id;
+      const user = await User.findById(userId);
+
+      if(!user) return res.status(404).json({error: "User not found"});
+      const following = user.following;
+      
+      const feedPosts  = await Post.find({user: {$in: following}})
+      .sort({createdAt: -1})
+      .populate({
+        path: "user",
+        select: "-password"
+      })
+      .populate({
+        path: "comments.user",
+        select: "-password"
+      })
+      res.status(200).json({feedPosts})
+   } catch (error) {
+    console.error("Error in GetFollowinf contollers: ", error);
+    res.status(500).json({error: "Internal Server Error"})
+   }
+ }
+
+
+// export const getAllFollowing = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const user = await User.findById(userId);
+
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     const following = user.following;
+//     if (!following || following.length === 0) {
+//       return res.status(200).json({ feedPosts: [] });
+//     }
+
+//     const feedPosts = await Post.find({ user: { $in: following } })
+//       .sort({ createdAt: -1 })
+//       .populate({
+//         path: "user",
+//         select: "-password",
+//       })
+//       .populate({
+//         path: "comments.user",
+//         select: "-password",
+//       });
+
+//     res.status(200).json({ feedPosts });
+//   } catch (error) {
+//     console.error("Error in getAllFollowing controller: ", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
