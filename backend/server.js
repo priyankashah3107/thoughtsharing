@@ -33,6 +33,6 @@ app.use("/api/notifications", notificationRoutes)
 // console.log(process.env.MONGODB_URI)
 
 app.listen(port, ()=> {
-  console.log(`App is running on ${port}`)
+  console.log(`App is running on http://localhost:${port}`)
   connectMongoDb()
 })
