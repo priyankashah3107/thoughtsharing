@@ -5,7 +5,7 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
@@ -14,6 +14,7 @@ const LoginPage = () => {
 		password: "",
 	});
 
+const queryClient = useQueryClient()	
 	
 const {mutate: loginMutate, isError, isPending, error}	= useMutation({
 	mutationFn: async({username, password}) => {
@@ -35,7 +36,11 @@ const {mutate: loginMutate, isError, isPending, error}	= useMutation({
 		}
 	},
 	onSuccess: () => {
-		toast.success("Login Successfully ✨")
+		// toast.success("Login Successfully ✨")
+		// refetch the authUser 
+		// this will help us to getting the authUset from app.jsx and help us after login to navigate in home page
+
+		queryClient.invalidateQueries({queryKey: ["authUser"]});
 	}
 })
 
