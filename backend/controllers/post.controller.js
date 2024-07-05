@@ -155,7 +155,8 @@ export const likeOrUnLikePost = async(req, res) => {
       return res.status(200).json([])
     }
 
-    res.status(200).json({posts})
+    // res.status(200).json({posts})
+    res.status(200).json(posts)
 
   } catch (error) {
     res.status(500).json({error: "Internal Server Error"})
@@ -184,7 +185,7 @@ export const likeOrUnLikePost = async(req, res) => {
        select: "-password"
      })
 
-     res.status(200).json({likedPosts})
+     res.status(200).json(likedPosts)
    } catch (error) {
      console.error("Error in GetLikedPosts contollers: ", error);
      res.status(500).json({error: "Internal Server Error"})
@@ -211,7 +212,7 @@ export const likeOrUnLikePost = async(req, res) => {
         path: "comments.user",
         select: "-password"
       })
-      res.status(200).json({feedPosts})
+      res.status(200).json(feedPosts)
    } catch (error) {
     console.error("Error in GetFollowing contollers: ", error);
     res.status(500).json({error: "Internal Server Error"})

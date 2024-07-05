@@ -15,8 +15,11 @@ const Posts = ({feedType}) => {
 				  return "/api/posts/following";
 				default: 
 				  return "/api/posts/all"	
+					
 			 }
+			 
 	} // ab error aayega thik h
+
 
 	
 
@@ -46,7 +49,7 @@ if(isError) {
 }
 
 
-console.log(posts)
+// console.log(posts)
 
 	return (
 		<>
