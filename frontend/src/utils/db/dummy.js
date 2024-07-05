@@ -1,4 +1,4 @@
-export const POSTS = [
+export const POSTS = [ 
 	{
 		_id: "1",
 		text: "Let's build a fullstack WhatsApp clone with NEXT.JS 14 😍",

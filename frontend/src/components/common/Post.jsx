@@ -8,6 +8,11 @@ import { Link } from "react-router-dom";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
+	const [feedType, setFeedType] = useState("forYou")
+  
+
+
+
 	const postOwner = post.user;
 	const isLiked = false;
 
