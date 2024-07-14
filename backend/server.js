@@ -19,9 +19,11 @@ const app = express()
 const port = process.env.PORT || 8000
 
 // middleware 
-app.use(express.json()) // it is a middleware or regular function which runs btw req and res.
+app.use(express.json({limit: "10mb"})) // it is a middleware or regular function which runs btw req and res.
 // parse the req.body  
+// This limit is not to large bcz when attacker  attack send a large req  then it might cause error DOS (Dineal of services)
 app.use(bodyParser.json());
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
 app.use(express.urlencoded({extended: true}));  // to parse from data(urlencode)
