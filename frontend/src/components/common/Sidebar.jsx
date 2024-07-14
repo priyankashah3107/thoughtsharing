@@ -18,7 +18,7 @@ const Sidebar = () => {
           method: "POST",
         });
         const data = await res.json();
-
+         console.log("This is from SideBar.jsx", data)
         if (!res.ok) {
           throw new Error(data.error || "Something went wrong");
         }

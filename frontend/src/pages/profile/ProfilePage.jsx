@@ -25,7 +25,7 @@ const ProfilePage = () => {
 
 	const user = {
 		_id: "1",
-		fullName: "Priyankashah",
+		fullname: "Priyankashah",
 		username: "priyankashah317",
 		profileImg: "/avatars/girl1.png",
 		coverImg: "/cover.png",
@@ -132,7 +132,7 @@ const ProfilePage = () => {
 
 							<div className='flex flex-col gap-4 mt-14 px-4'>
 								<div className='flex flex-col'>
-									<span className='font-bold text-lg'>{user?.fullName}</span>
+									<span className='font-bold text-lg'>{user?.fullname}</span>
 									<span className='text-sm text-slate-500'>@{user?.username}</span>
 									<span className='text-sm my-1'>{user?.bio}</span>
 								</div>
