@@ -17,7 +17,7 @@ const NotificationPage = () => {
 				if(!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				} 
-				return data;
+				return data.notifications; // Return the notifications array
 			} catch (error) {
 			    throw new Error(error)	
 			}
