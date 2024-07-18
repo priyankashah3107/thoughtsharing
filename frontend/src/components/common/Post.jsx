@@ -8,11 +8,19 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
 	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 	const queryClient = useQueryClient(); // Corrected casing here
+	const postOwner = post.user;
+	const isLiked = post.likes.includes(authUser._id);
+	const isMyPost = authUser._id === post.user._id;
+	// const formattedDate = "1h";
+	const formattedDate = formatPostDate(post.createdAt);
+
+	// const isCommenting = true;
 
 	const { mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
@@ -77,13 +85,42 @@ const Post = ({ post }) => {
 		},
 	});
 	
+const {mutate: commentPost, isPending: isCommenting} = useMutation({
+   mutationFn: async () => {
+           try {
+						const res = await fetch(`/api/posts/comment/${post._id}`, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({text: comment }),
+						});
+						const data = await res.json()
+            console.log(data)
+						if(!res.ok) {
+							throw new Error(data.error || "Something went Wrong");
+						}
+						return data;
+						
+					 } catch (error) {
+						console.error("Error while commenting on the Post", error)
+						throw error;
+					 }
+	 },
 
-	const postOwner = post.user;
-	const isLiked = post.likes.includes(authUser._id);
-	const isMyPost = authUser._id === post.user._id;
-	const formattedDate = "1h";
+	 onSuccess: () => {
+    // toast.success("Comment done!");
+		setComment("")
+		queryClient.invalidateQueries({queryKey: ["posts"]})
+	 }, 
 
-	const isCommenting = true;
+	 onError: (error) => {
+     console.error("Error in mutation:", error)
+		 toast.error(error.message)
+	 }
+
+})
+
 
 	const handleDeletePost = () => {
 		deletePost();
@@ -91,6 +128,12 @@ const Post = ({ post }) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		if (comment.trim() === "") {
+			toast.error("Comment cannot be empty");
+			return;
+		}
+		if(isCommenting) return;
+		commentPost()
 	};
 
 	const handleLikePost = () => {
