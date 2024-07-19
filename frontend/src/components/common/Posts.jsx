@@ -32,7 +32,7 @@ const {data:posts, isLoading, error, isError, refetch, isRefetching} = useQuery(
 		try {
 			const res = await fetch(POST_ENDPOINT);
 			const data  = await res.json();
-
+      console.log("Data from Posts.jsx", data)
 			if(!res.ok) {
 				throw new Error(data.error || "Something went wrong")
 			}
@@ -53,7 +53,7 @@ useEffect(() => {
 	refetch()
 }, [feedType, refetch])
 
-// console.log(posts)
+console.log("This is Posts infomation from posts.jsx", posts)
 
 	return (
 		<>
@@ -68,7 +68,7 @@ useEffect(() => {
 			{!isLoading && !isRefetching && posts && (
 				<div>
 					{posts?.map((post) => (
-						<Post key={post._id} post={post} />
+						<Post key={post?._id} post={post} />
 					))}
 				</div>
 			)}
