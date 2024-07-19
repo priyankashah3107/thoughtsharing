@@ -11,9 +11,10 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow"
+import toast from "react-hot-toast";
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
@@ -24,7 +25,10 @@ const ProfilePage = () => {
 	const {username} = useParams();
   
 const {follow, isPending}	=  useFollow()
-	const {data:authUser} = useQuery({queryKey: ["authUser"]})
+
+const queryClient = useQueryClient()
+
+const {data:authUser} = useQuery({queryKey: ["authUser"]})
 
 	// const isLoading = false;
   
@@ -78,6 +82,44 @@ useEffect(() => {
 	refetch()
 }, [username ,refetch])
 
+
+const {mutate: updateProfile, isPending: isUpdateProfile} = useMutation({
+mutationFn: async () => {
+	try {
+		const res = await fetch(`/api/users/update`, {
+			 method: "POST",
+			 headers: {
+				"Content-Type": "application/json",
+			 },
+			 body: JSON.stringify({
+				 coverImg, 
+				 profileImg
+			 })
+		})
+		const data = await res.json();
+		if(!res.ok) {
+			throw new Error(data.error || "Something went wrong");
+		}
+		return data;
+	} catch (error) {
+		 throw new Error(error.message)
+	}
+  },
+
+	onSuccess: () => {
+		toast.success("Profile updated successfully");
+		Promise.all([
+			queryClient.invalidateQueries({queryKey: ["authUser"]}),
+			queryClient.invalidateQueries({queryKey: ["userProfile"]}),
+		])
+	},
+
+	onError: (error) => {
+		toast.error(error.message)
+	}
+
+})
+
 	return (
 		<>
 			<div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
@@ -108,7 +150,7 @@ useEffect(() => {
 										className='absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200'
 										onClick={() => coverImgRef.current.click()}
 									>
-										<MdEdit className='w-5 h-5 text-white' />
+										<MdEdit className='w-5 h-5 text-white'  />
 									</div>
 								)}
 
@@ -142,7 +184,7 @@ useEffect(() => {
 								</div>
 							</div>
 							<div className='flex justify-end px-4 mt-5'>
-								{isMyProfile && <EditProfileModal />}
+								{isMyProfile && <EditProfileModal authUser={authUser} />}
 								{!isMyProfile && (
 									<button
 										className='btn btn-outline rounded-full btn-sm'
@@ -156,9 +198,9 @@ useEffect(() => {
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => alert("Profile updated successfully")}
+										onClick={() => updateProfile()}
 									>
-										Update
+									{isUpdateProfile ? "Updating" : "update"}
 									</button>
 								)}
 							</div>
