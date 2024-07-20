@@ -15,8 +15,8 @@ const EditProfileModal = ({authUser}) => {
 		currentPassword: "",
 	});
 
-
-	const {mutate: updateProfile, isPending: isUpdateProfile} = useMutation({
+ console.log("This the formData info", formData)
+	const {mutate:updateProfile, isPending: isUpdateProfile} = useMutation({
 		mutationFn: async (formData) => {
 			try {
 				const res = await fetch(`/api/users/update`, {
@@ -58,14 +58,15 @@ const EditProfileModal = ({authUser}) => {
 useEffect(() => {
     if(authUser) {
 			setFormData({
-				fullname: authUser?.fullname,
-				username: authUser?.username,
-				email: authUser?.email,
-				bio: authUser?.bio,
-				link: authUser?.link,
+				fullname: authUser?.fullname || "",
+				username: authUser?.username || "",
+				email: authUser?.email || "",
+				bio: authUser?.bio || "",
+				link: authUser?.link || "",
 				newPassword: "", 
 				currentPassword: ""
 			})
+			console.log("FormData after setting authUser", formData);
 		}
 }, [authUser])
 
@@ -90,18 +91,18 @@ useEffect(() => {
 					>
 						<div className='flex flex-wrap gap-2'>
 							<input
-								type='text'
-								placeholder='Full Name'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.fullname}
-								name='fullname'
-								onChange={handleInputChange}
+								 type="text"
+								 placeholder="Full Name"
+								 className="flex-1 input border border-gray-700 rounded p-2 input-md"
+								 value={formData?.fullname}
+								 name="fullname"
+								 onChange={handleInputChange}
 							/>
 							<input
 								type='text'
 								placeholder='Username'
 								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.username}
+								value={formData?.username}
 								name='username'
 								onChange={handleInputChange}
 							/>
@@ -111,14 +112,14 @@ useEffect(() => {
 								type='email'
 								placeholder='Email'
 								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.email}
+								value={formData?.email}
 								name='email'
 								onChange={handleInputChange}
 							/>
 							<textarea
 								placeholder='Bio'
 								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.bio}
+								value={formData?.bio}
 								name='bio'
 								onChange={handleInputChange}
 							/>
@@ -136,7 +137,7 @@ useEffect(() => {
 								type='password'
 								placeholder='New Password'
 								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.newPassword}
+								value={formData?.newPassword}
 								name='newPassword'
 								onChange={handleInputChange}
 							/>

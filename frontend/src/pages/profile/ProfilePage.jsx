@@ -29,7 +29,7 @@ const {follow, isPending}	=  useFollow()
 const queryClient = useQueryClient()
 
 const {data:authUser} = useQuery({queryKey: ["authUser"]})
-
+console.log("AuthUser from Profile page", authUser)
 	// const isLoading = false;
   
 
@@ -134,7 +134,7 @@ mutationFn: async () => {
 									<FaArrowLeft className='w-4 h-4' />
 								</Link>
 								<div className='flex flex-col'>
-									<p className='font-bold text-lg'>{user.user?.fullname}</p>
+									<p className='font-bold text-lg'>{user?.user?.fullname}</p>
 									<span className='text-sm text-slate-500'>{POSTS?.length} posts</span>
 								</div>
 							</div>
@@ -207,23 +207,23 @@ mutationFn: async () => {
 
 							<div className='flex flex-col gap-4 mt-14 px-4'>
 								<div className='flex flex-col'>
-									<span className='font-bold text-lg'>{user.user?.fullname}</span>
-									<span className='text-sm text-slate-500'>@{user.user?.username}</span>
-									<span className='text-sm my-1'>{user.user?.bio}</span>
+									<span className='font-bold text-lg'>{user?.user?.fullname}</span>
+									<span className='text-sm text-slate-500'>@{user?.user?.username}</span>
+									<span className='text-sm my-1'>{user?.user?.bio}</span>
 								</div>
 
 								<div className='flex gap-2 flex-wrap'>
-									{user.user?.link && (
+									{user?.user?.link && (
 										<div className='flex gap-1 items-center '>
 											<>
 												<FaLink className='w-3 h-3 text-slate-500' />
 												<a
-													href='https://x.com/priyankashah317'
+													 href={user?.user?.link}
 													target='_blank'
 													rel='noreferrer'
 													className='text-sm text-blue-500 hover:underline'
 												>
-												  PriyankaShah317
+												  {!isLoading && user?.user?.link}
 												</a>
 											</>
 										</div>
@@ -278,3 +278,286 @@ mutationFn: async () => {
 export default ProfilePage;
 
 
+// import { useEffect, useRef, useState } from "react";
+// import { Link, useParams } from "react-router-dom";
+
+// import Posts from "../../components/common/Posts";
+// import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
+// import EditProfileModal from "./EditProfileModal";
+
+// import { POSTS } from "../../utils/db/dummy";
+
+// import { FaArrowLeft } from "react-icons/fa6";
+// import { IoCalendarOutline } from "react-icons/io5";
+// import { FaLink } from "react-icons/fa";
+// import { MdEdit } from "react-icons/md";
+// import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+// import { formatMemberSinceDate } from "../../utils/date";
+// import useFollow from "../../hooks/useFollow"
+// import toast from "react-hot-toast";
+
+// const ProfilePage = () => {
+//     const [coverImg, setCoverImg] = useState(null);
+//     const [profileImg, setProfileImg] = useState(null);
+//     const [feedType, setFeedType] = useState("posts");
+
+//     const coverImgRef = useRef(null);
+//     const profileImgRef = useRef(null);
+//     const { username } = useParams();
+
+//     const { follow, isPending } = useFollow()
+
+//     const queryClient = useQueryClient()
+
+//     const { data: authUser } = useQuery({ queryKey: ["authUser"] })
+//     console.log("AuthUser from Profile page", authUser)
+
+//     const { data: user, isLoading, refetch, isRefetching } = useQuery({
+//         queryKey: ["userProfile", username],
+//         queryFn: async () => {
+//             try {
+//                 const res = await fetch(`/api/users/profile/${username}`);
+//                 const data = await res.json();
+//                 console.log("Data from profile page", data)
+//                 if (!res.ok) {
+//                     throw new Error(data.error || "Something went wrong");
+//                 }
+//                 return data;
+//             } catch (error) {
+//                 throw new Error(error)
+//             }
+//         }
+//     })
+
+//     const isMyProfile = authUser?._id === user?.user?._id;
+
+//     const amIFollowing = authUser?.following?.includes(user?.user?._id);
+
+//     const handleImgChange = (e, state) => {
+//         const file = e.target.files[0];
+//         if (file) {
+//             const reader = new FileReader();
+//             reader.onload = () => {
+//                 state === "coverImg" && setCoverImg(reader.result);
+//                 state === "profileImg" && setProfileImg(reader.result);
+//             };
+//             reader.readAsDataURL(file);
+//         }
+//     };
+
+//     useEffect(() => {
+//         refetch()
+//     }, [username, refetch])
+
+//     const { mutate: updateProfile, isPending: isUpdateProfile } = useMutation({
+//         mutationFn: async () => {
+//             try {
+//                 const res = await fetch(`/api/users/update`, {
+//                     method: "POST",
+//                     headers: {
+//                         "Content-Type": "application/json",
+//                     },
+//                     body: JSON.stringify({
+//                         coverImg,
+//                         profileImg
+//                     })
+//                 })
+//                 const data = await res.json();
+//                 if (!res.ok) {
+//                     throw new Error(data.error || "Something went wrong");
+//                 }
+//                 return data;
+//             } catch (error) {
+//                 throw new Error(error.message)
+//             }
+//         },
+
+//         onSuccess: () => {
+//             toast.success("Profile updated successfully");
+//             Promise.all([
+//                 queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+//                 queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
+//             ])
+//         },
+
+//         onError: (error) => {
+//             toast.error(error.message)
+//         }
+
+//     })
+
+//     return (
+//         <>
+//             <div className='flex-[4_4_0] border-r border-gray-700 min-h-screen '>
+//                 {/* HEADER */}
+//                 {(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
+//                 {!isLoading && !isRefetching && !user && <p className='text-center text-lg mt-4'>User not found</p>}
+//                 <div className='flex flex-col'>
+//                     {!isLoading && !isRefetching && user && (
+//                         <>
+//                             <div className='flex gap-10 px-4 py-2 items-center'>
+//                                 <Link to='/'>
+//                                     <FaArrowLeft className='w-4 h-4' />
+//                                 </Link>
+//                                 <div className='flex flex-col'>
+//                                     {/* Ensure user.user?.fullname is correctly accessed */}
+//                                     <p className='font-bold text-lg'>{user.user?.fullname}</p>
+//                                     <span className='text-sm text-slate-500'>{POSTS?.length} posts</span>
+//                                 </div>
+//                             </div>
+//                             {/* COVER IMG */}
+//                             <div className='relative group/cover'>
+//                                 <img
+//                                     src={coverImg || user.user?.coverImg || "/cover.png"}
+//                                     className='h-52 w-full object-cover'
+//                                     alt='cover image'
+//                                 />
+//                                 {isMyProfile && (
+//                                     <div
+//                                         className='absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200'
+//                                         onClick={() => coverImgRef.current.click()}
+//                                     >
+//                                         <MdEdit className='w-5 h-5 text-white' />
+//                                     </div>
+//                                 )}
+
+//                                 <input
+//                                     type='file'
+//                                     accept="image/*"
+//                                     hidden
+//                                     ref={coverImgRef}
+//                                     onChange={(e) => handleImgChange(e, "coverImg")}
+//                                 />
+//                                 <input
+//                                     type='file'
+//                                     accept="image/*"
+//                                     hidden
+//                                     ref={profileImgRef}
+//                                     onChange={(e) => handleImgChange(e, "profileImg")}
+//                                 />
+//                                 {/* USER AVATAR */}
+//                                 <div className='avatar absolute -bottom-16 left-4'>
+//                                     <div className='w-32 rounded-full relative group/avatar'>
+//                                         <img src={profileImg || user.user?.profileImg || "/avatar-placeholder.png"} />
+//                                         <div className='absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer'>
+//                                             {isMyProfile && (
+//                                                 <MdEdit
+//                                                     className='w-4 h-4 text-white'
+//                                                     onClick={() => profileImgRef.current.click()}
+//                                                 />
+//                                             )}
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             </div>
+//                             <div className='flex justify-end px-4 mt-5'>
+//                                 {isMyProfile && <EditProfileModal authUser={authUser} />}
+//                                 {!isMyProfile && (
+//                                     <button
+//                                         className='btn btn-outline rounded-full btn-sm'
+//                                         onClick={() => follow(user?.user?._id)}
+//                                     >
+//                                         {isPending && "Loading..."}
+//                                         {!isPending && amIFollowing && "Unfollow"}
+//                                         {!isPending && !amIFollowing && "Follow"}
+//                                     </button>
+//                                 )}
+//                                 {(coverImg || profileImg) && (
+//                                     <button
+//                                         className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
+//                                         onClick={() => updateProfile()}
+//                                     >
+//                                         {isUpdateProfile ? "Updating" : "update"}
+//                                     </button>
+//                                 )}
+//                             </div>
+
+//                             <div className='flex flex-col gap-4 mt-14 px-4'>
+//                                 <div className='flex flex-col'>
+//                                     {/* Ensure user.user?.fullname is correctly accessed */}
+//                                     <span className='font-bold text-lg'>{user?.user?.fullname}</span>
+//                                     <span className='text-sm text-slate-500'>@{user?.user?.username}</span>
+//                                     <span className='text-sm my-1'>{user?.user?.bio}</span>
+//                                 </div>
+
+//                                 <div className='flex gap-2 flex-wrap'>
+//                                     {user?.user?.link && (
+//                                         <div className='flex gap-1 items-center '>
+//                                             <>
+//                                                 <FaLink className='w-3 h-3 text-slate-500' />
+//                                                 <a
+//                                                     href={user?.user?.link}
+//                                                     target='_blank'
+//                                                     rel='noreferrer'
+//                                                     className='text-sm text-blue-500 hover:underline'
+//                                                 >
+//                                                     {!isLoading && user?.user?.link}
+//                                                 </a>
+//                                             </>
+//                                         </div>
+//                                     )}
+//                                     <div className='flex gap-2 items-center'>
+//                                         <IoCalendarOutline className='w-4 h-4 text-slate-500' />
+//                                         <span className='text-sm text-slate-500'>
+//                                             {formatMemberSinceDate(user.user?.createdAt)}
+//                                         </span>
+//                                     </div>
+//                                 </div>
+//                                 <div className='flex gap-2'>
+//                                     <div className='flex gap-1 items-center'>
+//                                         <span className='font-bold'>{user?.user?.followers?.length}</span>
+//                                         <span className='text-slate-500 text-sm'>Followers</span>
+//                                     </div>
+//                                     <div className='flex gap-1 items-center'>
+//                                         <span className='font-bold'>{user?.user?.following?.length}</span>
+//                                         <span className='text-slate-500 text-sm'>Following</span>
+//                                     </div>
+//                                 </div>
+//                             </div>
+
+//                             <div className='flex justify-around mt-4 border-b border-gray-700'>
+//                                 <button
+//                                     onClick={() => setFeedType("posts")}
+//                                     className={`w-full py-2  ${feedType === "posts" ? "text-primary border-b border-primary font-semibold" : "text-slate-500"
+//                                         }`}
+//                                 >
+//                                     Posts
+//                                 </button>
+//                                 <button
+//                                     onClick={() => setFeedType("replies")}
+//                                     className={`w-full py-2  ${feedType === "replies" ? "text-primary border-b border-primary font-semibold" : "text-slate-500"
+//                                         }`}
+//                                 >
+//                                     Replies
+//                                 </button>
+//                                 <button
+//                                     onClick={() => setFeedType("media")}
+//                                     className={`w-full py-2  ${feedType === "media" ? "text-primary border-b border-primary font-semibold" : "text-slate-500"
+//                                         }`}
+//                                 >
+//                                     Media
+//                                 </button>
+//                                 <button
+//                                     onClick={() => setFeedType("likes")}
+//                                     className={`w-full py-2  ${feedType === "likes" ? "text-primary border-b border-primary font-semibold" : "text-slate-500"
+//                                         }`}
+//                                 >
+//                                     Likes
+//                                 </button>
+//                             </div>
+
+//                             {feedType === "posts" && <Posts posts={POSTS} />}
+//                             {feedType === "replies" && <p>Replies</p>}
+//                             {feedType === "media" && <p>Media</p>}
+//                             {feedType === "likes" && <p>Likes</p>}
+//                         </>
+//                     )}
+//                 </div>
+//             </div>
+
+           
+//         </>
+//     );
+// };
+
+// export default ProfilePage;
