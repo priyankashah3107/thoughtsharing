@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow"
 import toast from "react-hot-toast";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
@@ -83,42 +84,7 @@ useEffect(() => {
 }, [username ,refetch])
 
 
-const {mutate: updateProfile, isPending: isUpdateProfile} = useMutation({
-mutationFn: async () => {
-	try {
-		const res = await fetch(`/api/users/update`, {
-			 method: "POST",
-			 headers: {
-				"Content-Type": "application/json",
-			 },
-			 body: JSON.stringify({
-				 coverImg, 
-				 profileImg
-			 })
-		})
-		const data = await res.json();
-		if(!res.ok) {
-			throw new Error(data.error || "Something went wrong");
-		}
-		return data;
-	} catch (error) {
-		 throw new Error(error.message)
-	}
-  },
-
-	onSuccess: () => {
-		toast.success("Profile updated successfully");
-		Promise.all([
-			queryClient.invalidateQueries({queryKey: ["authUser"]}),
-			queryClient.invalidateQueries({queryKey: ["userProfile"]}),
-		])
-	},
-
-	onError: (error) => {
-		toast.error(error.message)
-	}
-
-})
+const {updateProfile, isUpdateProfile}  = useUpdateUserProfile()
 
 	return (
 		<>
@@ -198,7 +164,7 @@ mutationFn: async () => {
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => updateProfile()}
+										onClick={() => updateProfile({coverImg, profileImg})}
 									>
 									{isUpdateProfile ? "Updating" : "update"}
 									</button>
